@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth bg-ocean-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanner Croddy | Mechanical Engineer & CSWP</title>
+    <meta name="description" content="Mechanical Engineer bridging physical constraints and digital solutions.">
+    
+    <!-- Fonts: Outfit for tech aesthetic + high legibility 'g' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ocean: {
+                            950: '#01050a', 
+                            900: '#030c17', 
+                            800: '#06172e', 
+                            700: '#0a2548',
+                            500: '#0284c7', 
+                            400: '#38bdf8', 
+                            300: '#67e8f9', 
+                            100: '#cffafe', 
+                        },
+                        aurora: {
+                            1: '#00ff87', // Emerald
+                            2: '#60efff', // Cyan
+                            3: '#0061ff', // Blue
+                            4: '#7b2cbf'  // Purple
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                        'laser-sweep': 'laser 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        laser: {
+                            '0%, 100%': { transform: 'translateY(-10px)', opacity: '0' },
+                            '50%': { transform: 'translateY(100%)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { cursor: none !important; } 
+        html, body { overscroll-behavior: none; }
+        
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #01050a; }
+        ::-webkit-scrollbar-thumb { background: #0a2548; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+        
+        .view-container { position: relative; width: 100%; min-height: 100vh; }
+        .view { display: none; opacity: 0; transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .view.active { display: block; opacity: 1; }
+
+        .tech-grid {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(103, 232, 249, 0.015) 1px, transparent 1px), linear-gradient(to bottom, rgba(103, 232, 249, 0.015) 1px, transparent 1px);
+            mask-image: radial-gradient(ellipse at center, black 10%, transparent 90%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 10%, transparent 90%);
+        }
+
+        #pressure-vignette {
+            position: fixed; inset: 0; pointer-events: none; z-index: 5;
+            background: radial-gradient(circle at center, transparent 40%, rgba(1, 5, 10, 0) 100%);
+            transition: background 0.3s ease-out;
+        }
+
+        #cursor-dot {
+            position: fixed; top: 0; left: 0; width: 4px; height: 4px;
+            background-color: #60efff; border-radius: 50%; pointer-events: none;
+            z-index: 10000; transform: translate(-50%, -50%);
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        #cursor-ring {
+            position: fixed; top: 0; left: 0; width: 32px; height: 32px;
+            border: 1px solid rgba(96, 239, 255, 0.4); border-radius: 50%;
+            pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s, border-color 0.4s, backdrop-filter 0.4s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        #cursor-ring.active {
+            width: 70px; height: 70px; 
+            background-color: rgba(0, 5, 10, 0.3); 
+            backdrop-filter: blur(1.5px); -webkit-backdrop-filter: blur(1.5px);
+            border-color: rgba(96, 239, 255, 0.25); 
+            box-shadow: 0 0 25px rgba(0,0,0,0.6), inset 0 0 15px rgba(96, 239, 255, 0.15);
+        }
+        #cursor-dot.active { opacity: 0; } 
+
+        #cursor-canvas {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 140px; height: 140px; pointer-events: none; opacity: 0; transition: opacity 0.4s;
+        }
+        #cursor-ring.active #cursor-canvas { opacity: 1; }
+
+        .spotlight-card { position: relative; overflow: hidden; --mouse-x: 50%; --mouse-y: 50%; }
+        .spotlight-card::before {
+            content: ""; position: absolute; inset: 0; z-index: 0;
+            background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(96, 239, 255, 0.15) 0%, transparent 50%);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .spotlight-card:hover::before { opacity: 1; }
+        .spotlight-content { position: relative; z-index: 10; }
+
+        .hex-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+        .hex { width: 8px; height: 8px; background-color: rgba(96,239,255,0.1); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); transition: all 0.3s; }
+
+        .glass { background: rgba(1, 5, 10, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .gradient-text { background: linear-gradient(90deg, #00ff87, #60efff, #0061ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tilt-card { transform-style: preserve-3d; will-change: transform; }
+        .tilt-content { transform: translateZ(30px); }
+        .tilt-bg { transform: translateZ(-10px); }
+        .magnetic { will-change: transform; display: inline-block; }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        
+        /* Fixed 'g' Cutoff with dynamic padding-bottom & margin-bottom compensation */
+        .text-mask { overflow: hidden; display: inline-block; vertical-align: bottom; padding-bottom: 0.25em; margin-bottom: -0.25em; }
+        .text-mask > div { transform: translateY(100%); transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+        .text-mask.active > div { transform: translateY(0); }
+
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25; pointer-events: none; z-index: 0; mix-blend-mode: screen; }
+        .scramble-char { color: #60efff; font-weight: bold; }
+
+        /* Mobile Adjustments for Smooth Linear Performance */
+        @media (pointer: coarse) {
+            * { cursor: auto !important; }
+            #cursor-dot, #cursor-ring { display: none !important; }
+        }
+        @media (max-width: 768px) {
+            .tilt-card { transform: none !important; }
+            .spotlight-card::before { display: none !important; }
+            .magnetic { transform: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-ocean-950 text-slate-200 font-sans antialiased selection:bg-aurora-3 selection:text-white min-h-screen flex flex-col overflow-x-hidden">
+
+    <div id="pressure-vignette"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none tech-grid mix-blend-screen opacity-50"></div>
+
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"><canvas id="cursor-canvas" width="140" height="140"></canvas></div>
+    <canvas id="waveCanvas" class="fixed inset-0 z-0 pointer-events-none opacity-70"></canvas>
+
+    <header class="fixed inset-x-0 top-0 z-50 transition-all duration-500 h-20 flex items-center border-b border-transparent bg-transparent" id="main-header">
+        <div class="mx-auto flex w-full max-w-[1440px] items-center justify-between px-6 md:px-12">
+            <a href="#home" class="interactive magnetic font-mono text-[11px] uppercase tracking-[0.4em] text-slate-100 transition-colors hover:text-aurora-2 flex items-center gap-1 scramble" data-text="T. CRODDY">
+                T . &nbsp; C R O D D Y
+            </a>
+            <nav class="flex items-center gap-6 md:gap-10">
+                <a href="#work" class="interactive magnetic nav-link font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-slate-400 hover:text-aurora-2 transition-colors scramble" data-text="WORK">WORK</a>
+                <a href="#about" class="interactive magnetic nav-link font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-slate-400 hover:text-aurora-2 transition-colors hidden md:inline scramble" data-text="ABOUT">ABOUT</a>
+                <a href="#writing" class="interactive magnetic nav-link font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-slate-400 hover:text-aurora-2 transition-colors hidden md:inline scramble" data-text="WRITING">WRITING</a>
+                <a href="#deck" class="interactive magnetic nav-link font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-slate-400 hover:text-aurora-2 transition-colors scramble" data-text="DECK">DECK</a>
+                <a href="#resume" class="interactive magnetic nav-link font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-slate-400 hover:text-aurora-2 transition-colors scramble" data-text="RÉSUMÉ">RÉSUMÉ</a>
+                <a href="#contact" class="interactive magnetic nav-link font-mono text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-slate-400 hover:text-aurora-2 transition-colors scramble" data-text="CONTACT">CONTACT</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="pointer-events-none fixed top-24 right-8 z-40 hidden md:flex flex-col items-end gap-2 mix-blend-screen opacity-60">
+        <span class="font-mono text-[8px] uppercase tracking-[0.3em] text-aurora-2 mb-1">Compute Node</span>
+        <div class="hex-grid" id="hex-hud"></div>
+    </div>
+
+    <!-- Floating System Status (Left) -->
+    <div id="telemetry-hud" class="pointer-events-none fixed bottom-6 left-6 z-40 hidden md:flex flex-col gap-1.5 glass px-4 py-3 rounded-md border border-ocean-500/20 shadow-xl transition-all duration-500">
+        <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 bg-aurora-1 rounded-full animate-pulse"></span>
+            <span class="font-mono text-[9px] uppercase tracking-[0.2em] text-slate-300">Telemetry Active</span>
+        </div>
+        <span class="font-mono text-[9px] tracking-[0.25em] text-slate-500">SYS.NODE: MIA-01</span>
+    </div>
+
+    <!-- Floating Right Side Scroll Indicator -->
+    <div class="pointer-events-none fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-center gap-6 xl:flex mix-blend-screen">
+        <div class="flex flex-col items-center font-mono text-[11px] tracking-[0.2em] text-aurora-2">
+            <span id="active-section-num" class="block text-center tabular-nums transition-all duration-300">01</span>
+            <span class="mt-2 h-6 w-px bg-slate-700"></span>
+            <span class="mt-2 text-[9px] tracking-[0.25em] text-slate-500 tabular-nums">07</span>
+        </div>
+        <div class="flex flex-col items-center gap-2 mt-4">
+            <div class="relative h-20 w-px overflow-hidden bg-slate-800 rounded-full">
+                <span id="scroll-progress-line" class="absolute inset-x-0 top-0 w-full bg-aurora-2 origin-top transition-transform duration-100 ease-out" style="transform: scaleY(0);"></span>
+            </div>
+            <span class="font-mono text-[8px] tracking-[0.2em] text-slate-500 mt-2">v 2.10</span>
+            <span id="scroll-state" class="font-mono text-[8px] uppercase tracking-[0.2em] text-aurora-2 mt-1">AT REST</span>
+        </div>
+    </div>
+
+    <!-- Dynamic 3D Gyroscope/Artificial Horizon HUD -->
+    <div id="gyro-hud" class="pointer-events-none fixed right-8 bottom-8 z-40 hidden md:flex flex-col items-center justify-center mix-blend-screen transition-all duration-700 opacity-60 hover:opacity-100">
+        <div class="relative w-24 h-24 rounded-full border border-ocean-500/20 bg-ocean-950/50 backdrop-filter blur-md shadow-[0_0_30px_rgba(2,132,199,0.15)] flex items-center justify-center overflow-hidden perspective-[200px]">
+            <div id="gyro-inner" class="w-full h-full absolute inset-0 transition-transform duration-100 ease-out flex items-center justify-center">
+                <div class="w-32 h-px bg-aurora-2/30 absolute top-1/2 -translate-y-1/2"></div>
+                <div class="h-32 w-px bg-aurora-2/30 absolute left-1/2 -translate-x-1/2"></div>
+                <div class="w-16 h-[2px] bg-aurora-1 shadow-[0_0_8px_#00ff87] rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <div class="w-2 h-2 border border-aurora-1 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <div class="absolute left-2 top-[30%] text-[5px] font-mono text-aurora-2/50">+10</div>
+                <div class="absolute left-2 bottom-[30%] text-[5px] font-mono text-aurora-2/50">-10</div>
+            </div>
+            <div class="absolute inset-0 rounded-full border-[2px] border-dashed border-ocean-500/30 animate-[spin-slow_20s_linear_infinite]"></div>
+            <div class="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(96,239,255,0.05)_0%,transparent_70%)]"></div>
+        </div>
+        <span class="font-mono text-[7px] uppercase tracking-[0.3em] text-aurora-2 mt-4">GYRO.STAB</span>
+    </div>
+
+
+    <main class="view-container">
+
+        <div id="view-home" class="view active">
+            
+            <section id="home" class="relative min-h-[100svh] flex flex-col justify-center px-6 md:px-12 pt-20 pb-12 overflow-hidden scroll-section" data-num="00">
+                <div class="glow-orb w-[700px] h-[700px] bg-ocean-800/40 -top-[10%] -right-[10%]"></div>
+                <div class="glow-orb w-[800px] h-[800px] bg-aurora-3/15 top-[30%] -left-[15%]"></div>
+
+                <div class="mx-auto w-full max-w-[1440px] relative z-10">
+                    <div class="reveal">
+                        <p class="font-mono text-[10px] uppercase tracking-[0.4em] text-aurora-2 mb-8 flex items-center gap-3 scramble" data-text="MECHANICAL ENGINEER & CSWP">
+                            <span class="h-px w-8 bg-aurora-2"></span>
+                            MECHANICAL ENGINEER & CSWP
+                        </p>
+                    </div>
+                    
+                    <div class="reveal">
+                        <h1 class="text-[clamp(3.3rem,8vw,11.5rem)] font-medium leading-[0.95] tracking-[-0.03em] mix-blend-lighten relative">
+                            <span class="text-mask"><div>Engineering a</div></span>
+                            <br class="hidden md:block">
+                            <span class="text-mask reveal-delay-1"><div class="gradient-text pr-4">world where</div></span>
+                            <br class="hidden md:block">
+                            <span class="text-mask reveal-delay-2"><div>no one goes thirsty.</div></span>
+                        </h1>
+                    </div>
+                    
+                    <div class="mt-20 flex items-end justify-between max-w-[1440px] reveal reveal-delay-2">
+                        <div class="flex flex-col gap-1.5 font-mono text-[9px] uppercase tracking-[0.25em] md:text-[10px]">
+                            <span class="text-aurora-2 scramble" data-text="COORDINATES">COORDINATES</span>
+                            <span class="text-slate-500">25.7617° N / 80.1918° W</span>
+                        </div>
+                        <div class="flex flex-col gap-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-right md:text-[10px]">
+                            <span class="text-aurora-2 scramble" data-text="STATUS">STATUS</span>
+                            <span class="text-slate-500">Available '26</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="relative py-20 md:py-36 px-6 md:px-12 border-t border-slate-800/40 bg-ocean-900/30 scroll-section" data-num="01">
+                <div class="mx-auto max-w-[1440px]">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
+                        <div class="col-span-12 md:col-span-2">
+                            <p class="font-mono text-[10px] tracking-[0.3em] text-slate-500 uppercase flex items-center gap-3 reveal scramble" data-text="01 — ABOUT">
+                                01 — ABOUT
+                            </p>
+                        </div>
+                        <div class="col-span-12 md:col-span-6">
+                            <h2 class="text-[clamp(1.8rem,4vw,3.2rem)] font-light leading-[1.15] tracking-[-0.02em] text-slate-200 reveal">
+                                Miami-based. I bridge the gap between abstract theoretical physics and high-stakes, real-world execution — <span class="text-aurora-2 italic">I design, and I deliver.</span>
+                            </h2>
+                            <p class="mt-8 text-base md:text-lg leading-relaxed text-slate-400 max-w-xl reveal reveal-delay-1">
+                                Building a world where no one goes thirsty. I offer a unique synthesis of blue-water maritime experience and rigorous academic precision. From cross-navigating the Caribbean as an insurance-approved Bosun to optimizing silicon wafer production at TSMC, I architect infrastructure that scales and interfaces that empower.
+                            </p>
+                        </div>
+                        <div class="col-span-12 max-w-[320px] md:col-span-3 md:col-start-10 md:max-w-none mt-10 md:mt-0 reveal reveal-delay-2">
+                            <div class="interactive tilt-card spotlight-card w-full aspect-[4/5] p-px rounded bg-gradient-to-b from-ocean-500/50 via-slate-800/30 to-aurora-3/30 relative group">
+                                <div class="tilt-bg absolute inset-0 bg-ocean-950 rounded pointer-events-none overflow-hidden">
+                                    <img src="https://preview.redd.it/stunning-skyline-view-of-miami-v0-p7kvrt0xued31.jpg?auto=webp&s=636137f9b6f569b33ab276956a0f956e2edf2ec0" alt="Miami Skyline" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                </div>
+                                <div class="tilt-content spotlight-content relative w-full h-full rounded bg-ocean-900/10 overflow-hidden flex items-center justify-center border border-ocean-500/10 transition-colors duration-500 group-hover:bg-transparent">
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-baseline justify-between font-mono text-[9px] uppercase tracking-[0.25em] text-slate-500">
+                                <span class="scramble" data-text="40 COUNTRIES">40 COUNTRIES</span>
+                                <span>6000+ NM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div id="work">
+                <!-- 02: Work Project 1 (Wider Stats for Good layout) -->
+                <section class="relative py-20 md:py-36 px-6 md:px-12 border-t border-slate-800/40 scroll-section" data-num="02">
+                    <div class="mx-auto max-w-[1440px]">
+                        <div class="grid grid-cols-12 items-baseline gap-x-4 border-t border-ocean-500/20 pt-6 md:gap-x-6 reveal">
+                            <p class="order-2 col-span-6 mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 md:order-1 md:col-span-3 md:mt-0">Systems Founder <span class="mx-2 text-slate-700">·</span> 2026</p>
+                            <h2 class="order-1 col-span-12 text-left md:text-center text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1] tracking-[-0.03em] md:order-2 md:col-span-6 text-slate-100 scramble" data-text="Stats For Good">
+                                Stats For Good
+                            </h2>
+                            <p class="order-3 col-span-6 mt-4 text-right font-mono text-[10px] tracking-[0.3em] text-aurora-2 md:col-span-3 md:mt-0">02</p>
+                        </div>
+
+                        <div class="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-y-12 lg:gap-x-12 reveal reveal-delay-1">
+                            <div class="lg:col-span-4 flex flex-col justify-between">
+                                <div>
+                                    <p class="text-base leading-relaxed text-slate-300 md:text-lg max-w-sm">
+                                        Developed and launched an analytics platform processing extensive institutional data to provide objective course transparency, combating negative biases with raw data.
+                                    </p>
+                                    <div class="mt-12 border-t border-slate-800/50 pt-8 flex gap-12">
+                                        <div>
+                                            <p class="text-5xl md:text-7xl font-light tracking-[-0.03em] text-slate-200">100<span class="text-2xl text-aurora-2">%</span></p>
+                                            <p class="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.2em] text-slate-500 max-w-[15ch]">Data Driven</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-5xl md:text-7xl font-light tracking-[-0.03em] text-slate-200">3<span class="text-2xl text-aurora-2">yrs</span></p>
+                                            <p class="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.2em] text-slate-500 max-w-[15ch]">Of Normalized Datasets</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-10 lg:mt-0">
+                                    <p class="font-mono text-[9px] uppercase tracking-[0.25em] text-slate-600 mb-3">Impact</p>
+                                    <p class="text-sm text-slate-400 max-w-sm mb-6">Democratized access to GPA and SPOT survey distributions for the entire FIU student body.</p>
+                                    <a href="#deck" class="interactive magnetic group inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-aurora-2 hover:text-white transition-colors scramble" data-text="ACCESS CLASSIFIED FILE →">
+                                        ACCESS CLASSIFIED FILE <span class="group-hover:translate-x-1 transition-transform">→</span>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Wide Layout for Stats for Good Images -->
+                            <div class="lg:col-span-8 flex flex-col gap-8 relative">
+                                <div class="glow-orb w-[300px] h-[600px] bg-ocean-500/20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                                
+                                <div class="interactive spotlight-card tilt-card aspect-video w-full rounded-xl p-px bg-gradient-to-br from-ocean-500/40 to-slate-800/20 group">
+                                    <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
+                                        <img src="Screenshot 2026-07-11 234507.png" alt="Stats for Good UI" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                    </div>
+                                    <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/20 group-hover:bg-transparent overflow-hidden flex flex-col items-center justify-center border border-ocean-400/10 transition-colors duration-500">
+                                        <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ocean-400/80 group-hover:text-aurora-2 transition-colors duration-500 bg-ocean-950/80 backdrop-blur px-3 py-1.5 rounded border border-ocean-500/30 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">Data Node 01</span>
+                                    </div>
+                                </div>
+
+                                <div class="interactive spotlight-card tilt-card aspect-video w-full rounded-xl p-px bg-gradient-to-br from-aurora-3/30 to-slate-800/20 group">
+                                    <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
+                                        <img src="data2.png" alt="Analytics API" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                    </div>
+                                    <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/20 group-hover:bg-transparent overflow-hidden flex flex-col items-center justify-center border border-ocean-400/10 transition-colors duration-500">
+                                        <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ocean-400/80 group-hover:text-aurora-2 transition-colors duration-500 bg-ocean-950/80 backdrop-blur px-3 py-1.5 rounded border border-ocean-500/30 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">Analytics API</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 03: Work Project 2 -->
+                <section class="relative py-20 md:py-36 px-6 md:px-12 border-t border-slate-800/40 scroll-section" data-num="03">
+                    <div class="mx-auto max-w-[1440px]">
+                        <div class="grid grid-cols-12 items-baseline gap-x-4 border-t border-ocean-500/20 pt-6 md:gap-x-6 reveal">
+                            <p class="order-2 col-span-6 mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 md:order-1 md:col-span-3 md:mt-0">Equipment Engineer <span class="mx-2 text-slate-700">·</span> 2026</p>
+                            <h2 class="order-1 col-span-12 text-left md:text-center text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1] tracking-[-0.03em] md:order-2 md:col-span-6 text-slate-100 scramble" data-text="TSMC Fab 21">
+                                TSMC Fab 21
+                            </h2>
+                            <p class="order-3 col-span-6 mt-4 text-right font-mono text-[10px] tracking-[0.3em] text-aurora-3 md:col-span-3 md:mt-0">03</p>
+                        </div>
+
+                        <div class="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-y-12 lg:gap-x-12 reveal reveal-delay-1">
+                            <div class="lg:col-span-4 flex flex-col justify-between md:order-last">
+                                <div>
+                                    <p class="text-base leading-relaxed text-slate-300 md:text-lg max-w-sm">
+                                        Formulated predictive models for the structural processing of initial silicon wafers using microscopic precision machining methodologies.
+                                    </p>
+                                    <div class="mt-12 border-t border-slate-800/50 pt-8 flex gap-12">
+                                        <div>
+                                            <p class="text-5xl md:text-7xl font-light tracking-[-0.03em] text-slate-200"><1<span class="text-2xl text-aurora-3">nm</span></p>
+                                            <p class="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.2em] text-slate-500 max-w-[15ch]">Micro-defect mitigation</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-5xl md:text-7xl font-light tracking-[-0.03em] text-slate-200">Max<span class="text-2xl text-aurora-3"></span></p>
+                                            <p class="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.2em] text-slate-500 max-w-[15ch]">Wafer Throughput</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-10 lg:mt-0">
+                                    <p class="font-mono text-[9px] uppercase tracking-[0.25em] text-slate-600 mb-3">Impact</p>
+                                    <p class="text-sm text-slate-400 max-w-sm mb-6">Targeted and eliminated defects, yielding rock-solid device dependability for the frontline semiconductor fabrication line.</p>
+                                    <a href="#deck" class="interactive magnetic group inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-aurora-3 hover:text-white transition-colors scramble" data-text="ACCESS CLASSIFIED FILE →">
+                                        ACCESS CLASSIFIED FILE <span class="group-hover:translate-x-1 transition-transform">→</span>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 relative">
+                                <div class="glow-orb w-[400px] h-[400px] bg-aurora-3/20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                                
+                                <div class="interactive spotlight-card tilt-card aspect-[4/3] w-full rounded-xl p-px bg-gradient-to-br from-aurora-3/40 to-slate-800/20 group">
+                                    <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
+                                        <img src="https://heise.cloudimg.io/width/610/q85.png-lossy-85.webp-lossy-85.foil1/_www-heise-de_/imgs/18/4/7/8/1/8/4/3/waferc001_2522_64RX_0_1_-ab61df82ea0449c0.jpeg" alt="Silicon Array" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                    </div>
+                                    <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/20 group-hover:bg-transparent overflow-hidden flex flex-col items-center justify-center border border-ocean-400/10 transition-colors duration-500">
+                                        <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ocean-400/80 group-hover:text-aurora-3 transition-colors duration-500 bg-ocean-950/80 backdrop-blur px-3 py-1.5 rounded border border-ocean-500/30 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">Silicon Array</span>
+                                    </div>
+                                </div>
+
+                                <div class="interactive spotlight-card tilt-card aspect-[4/3] w-full rounded-xl p-px bg-gradient-to-br from-ocean-500/30 to-slate-800/20 group sm:mt-16">
+                                    <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
+                                        <img src="https://www.infindus.com/wp-content/uploads/2020/12/ebara.png" alt="CMP Processing" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                    </div>
+                                    <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/20 group-hover:bg-transparent overflow-hidden flex flex-col items-center justify-center border border-ocean-400/10 transition-colors duration-500">
+                                        <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ocean-400/80 group-hover:text-aurora-3 transition-colors duration-500 bg-ocean-950/80 backdrop-blur px-3 py-1.5 rounded border border-ocean-500/30 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">CMP Processing</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 04: Work Project 3 -->
+                <section class="relative py-20 md:py-36 px-6 md:px-12 border-t border-slate-800/40 scroll-section" data-num="04">
+                    <div class="mx-auto max-w-[1440px]">
+                        <div class="grid grid-cols-12 items-baseline gap-x-4 border-t border-ocean-500/20 pt-6 md:gap-x-6 reveal">
+                            <p class="order-2 col-span-6 mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 md:order-1 md:col-span-3 md:mt-0">Bosun & Co-Captain <span class="mx-2 text-slate-700">·</span> 2019-2022</p>
+                            <h2 class="order-1 col-span-12 text-left md:text-center text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1] tracking-[-0.03em] md:order-2 md:col-span-6 text-slate-100 scramble" data-text="S/V Dorothy Rose">
+                                S/V Dorothy Rose
+                            </h2>
+                            <p class="order-3 col-span-6 mt-4 text-right font-mono text-[10px] tracking-[0.3em] text-aurora-4 md:col-span-3 md:mt-0">04</p>
+                        </div>
+
+                        <div class="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-y-12 lg:gap-x-12 reveal reveal-delay-1">
+                            <div class="lg:col-span-4 flex flex-col justify-between">
+                                <div>
+                                    <p class="text-base leading-relaxed text-slate-300 md:text-lg max-w-sm">
+                                        Commanded the helm, managed physical systems by meticulously maintaining the Cummins Onan generator alongside a decade-old Raymarine tech stack, and executing a complete autopilot replacement during a massive transit.
+                                    </p>
+                                    <div class="mt-12 border-t border-slate-800/50 pt-8 flex gap-12">
+                                        <div>
+                                            <p class="text-5xl md:text-7xl font-light tracking-[-0.03em] text-slate-200">6k<span class="text-2xl text-aurora-4">+</span></p>
+                                            <p class="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.2em] text-slate-500 max-w-[15ch]">Nautical Miles</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-5xl md:text-7xl font-light tracking-[-0.03em] text-slate-200">15<span class="text-2xl text-aurora-4"></span></p>
+                                            <p class="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.2em] text-slate-500 max-w-[15ch]">Caribbean Nations</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-10 lg:mt-0">
+                                    <p class="font-mono text-[9px] uppercase tracking-[0.25em] text-slate-600 mb-3">Impact</p>
+                                    <p class="text-sm text-slate-400 max-w-sm mb-6">Executed low-level diagnostic programming for Raymarine architectures, AIS telemetry, and MARPA tracking loops.</p>
+                                    <a href="#deck" class="interactive magnetic group inline-flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-aurora-4 hover:text-white transition-colors scramble" data-text="ACCESS CLASSIFIED FILE →">
+                                        ACCESS CLASSIFIED FILE <span class="group-hover:translate-x-1 transition-transform">→</span>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 relative">
+                                <div class="glow-orb w-[400px] h-[400px] bg-aurora-4/20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                                
+                                <div class="interactive spotlight-card tilt-card aspect-[4/3] w-full rounded-xl p-px bg-gradient-to-br from-ocean-500/40 to-slate-800/20 group">
+                                    <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
+                                        <img src="https://www.generalmarine.co.nz/images/Products/Generators/Marine/CON-MDKDK-9-400.jpg" alt="Cummins Onan Generator" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                    </div>
+                                    <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/20 group-hover:bg-transparent overflow-hidden flex flex-col items-center justify-center border border-ocean-400/10 transition-colors duration-500">
+                                        <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ocean-400/80 group-hover:text-aurora-4 transition-colors duration-500 bg-ocean-950/80 backdrop-blur px-3 py-1.5 rounded border border-ocean-500/30 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">Cummins Onan Gen</span>
+                                    </div>
+                                </div>
+
+                                <div class="interactive spotlight-card tilt-card aspect-[4/3] w-full rounded-xl p-px bg-gradient-to-br from-aurora-4/30 to-slate-800/20 group sm:mt-16">
+                                    <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
+                                        <img src="https://d73v3rdaoqh96.cloudfront.net/image/308061165312/image_2lf2kle8e1257bocd0hbf4tp77/-FWEBP-S576" alt="Raymarine Telemetry" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                    </div>
+                                    <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/20 group-hover:bg-transparent overflow-hidden flex flex-col items-center justify-center border border-ocean-400/10 transition-colors duration-500">
+                                        <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ocean-400/80 group-hover:text-aurora-4 transition-colors duration-500 bg-ocean-950/80 backdrop-blur px-3 py-1.5 rounded border border-ocean-500/30 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">Raymarine Telemetry</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section id="writing" class="relative py-20 md:py-36 px-6 md:px-12 border-t border-slate-800/40 bg-ocean-900/20 scroll-section" data-num="05">
+                <div class="mx-auto max-w-[1440px]">
+                    <div class="grid grid-cols-12 items-baseline gap-x-4 border-t border-ocean-500/20 pt-6 md:gap-x-6 reveal">
+                        <p class="order-2 col-span-6 mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 md:order-1 md:col-span-3 md:mt-0">Tech Logs <span class="mx-2 text-slate-700">·</span> Journals</p>
+                        <h2 class="order-1 col-span-12 text-left md:text-center text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1] tracking-[-0.03em] md:order-2 md:col-span-6 text-slate-100 scramble" data-text="Transmissions">
+                            Transmissions
+                        </h2>
+                        <p class="order-3 col-span-6 mt-4 text-right font-mono text-[10px] tracking-[0.3em] text-slate-500 md:col-span-3 md:mt-0">05</p>
+                    </div>
+
+                    <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-10 reveal reveal-delay-1">
+                        <!-- Article 1 -->
+                        <a href="#" class="interactive tilt-card group block w-full">
+                            <div class="tilt-bg aspect-[16/9] w-full rounded-lg bg-ocean-950 border border-slate-800 overflow-hidden relative mb-6">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-gZ1rOHygliFgbwQhp5_5U-UAsyj4ZkHNG3A_RXdbEA&s=10" alt="The Global Classroom" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-ocean-950/90 via-ocean-900/20 to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
+                                <span class="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100 bg-gradient-to-r from-aurora-2 to-aurora-3 z-20"></span>
+                            </div>
+                            <div class="tilt-content flex flex-col gap-3 px-2">
+                                <div class="flex justify-between items-baseline">
+                                    <h3 class="text-2xl md:text-3xl font-medium text-slate-200 group-hover:text-aurora-2 transition-colors duration-300">The Global Classroom</h3>
+                                    <span class="font-mono text-[10px] tracking-[0.2em] text-slate-500">Log</span>
+                                </div>
+                                <p class="text-slate-400 text-sm leading-relaxed max-w-xl">Six formative years world-schooling across 40 countries, developing a hands-on foundation in global engineering challenges.</p>
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex gap-2">
+                                        <span class="border border-slate-700 px-2.5 py-1 rounded font-mono text-[9px] uppercase tracking-[0.2em] text-slate-400">Engineering</span>
+                                    </div>
+                                    <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 group-hover:text-aurora-2 transition-colors scramble" data-text="READ ↗">READ ↗</span>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Article 2 -->
+                        <a href="#" class="interactive tilt-card group block w-full mt-10 md:mt-0">
+                            <div class="tilt-bg aspect-[16/9] w-full rounded-lg bg-ocean-950 border border-slate-800 overflow-hidden relative mb-6">
+                                <img src="https://miro.medium.com/1*s64c4lijuJLVm-PMTdTRCQ.jpeg" alt="Saxis: Worldbuilding" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-ocean-950/90 via-ocean-900/20 to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
+                                <span class="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100 bg-gradient-to-r from-aurora-3 to-aurora-4 z-20"></span>
+                            </div>
+                            <div class="tilt-content flex flex-col gap-3 px-2">
+                                <div class="flex justify-between items-baseline">
+                                    <h3 class="text-2xl md:text-3xl font-medium text-slate-200 group-hover:text-aurora-3 transition-colors duration-300">Saxis: Worldbuilding</h3>
+                                    <span class="font-mono text-[10px] tracking-[0.2em] text-slate-500">Log</span>
+                                </div>
+                                <p class="text-slate-400 text-sm leading-relaxed max-w-xl">Architecting a 12-chapter military science-fiction and progression fantasy series.</p>
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex gap-2">
+                                        <span class="border border-slate-700 px-2.5 py-1 rounded font-mono text-[9px] uppercase tracking-[0.2em] text-slate-400">Creative</span>
+                                    </div>
+                                    <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 group-hover:text-aurora-3 transition-colors scramble" data-text="READ ↗">READ ↗</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="awards" class="relative py-20 md:py-36 px-6 md:px-12 border-t border-slate-800/40 scroll-section" data-num="06">
+                <div class="mx-auto max-w-[1440px]">
+                    <div class="grid grid-cols-12 items-baseline gap-x-4 border-t border-ocean-500/20 pt-6 md:gap-x-6 reveal">
+                        <p class="order-2 col-span-6 mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 md:order-1 md:col-span-3 md:mt-0">Leadership <span class="mx-2 text-slate-700">—</span> Governance</p>
+                        <h2 class="order-1 col-span-12 text-left md:text-center text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1] tracking-[-0.03em] md:order-2 md:col-span-6 text-slate-100 scramble" data-text="Clearances">
+                            Clearances
+                        </h2>
+                        <p class="order-3 col-span-6 mt-4 text-right font-mono text-[10px] tracking-[0.3em] text-slate-500 md:col-span-3 md:mt-0">06</p>
+                    </div>
+
+                    <div class="mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 reveal reveal-delay-1">
+                        <div class="interactive magnetic group flex flex-col border-t border-slate-800 pt-8">
+                            <div class="h-12 flex items-center font-mono text-ocean-600 text-sm group-hover:text-aurora-2 transition-colors">[SGA]</div>
+                            <h3 class="mt-6 text-2xl font-medium text-slate-200 group-hover:text-aurora-2 transition-colors">Legislative Chair</h3>
+                            <p class="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-slate-500">FIU BBC Campus</p>
+                        </div>
+                        <div class="interactive magnetic group flex flex-col border-t border-slate-800 pt-8">
+                            <div class="h-12 flex items-center font-mono text-ocean-600 text-sm group-hover:text-aurora-2 transition-colors">[FIMUN]</div>
+                            <h3 class="mt-6 text-2xl font-medium text-slate-200 group-hover:text-aurora-2 transition-colors">CFO & Director</h3>
+                            <p class="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Conference 38</p>
+                        </div>
+                        <div class="interactive magnetic group flex flex-col border-t border-slate-800 pt-8">
+                            <div class="h-12 flex items-center font-mono text-ocean-600 text-sm group-hover:text-aurora-2 transition-colors">[STEM]</div>
+                            <h3 class="mt-6 text-2xl font-medium text-slate-200 group-hover:text-aurora-2 transition-colors">Future Innovators</h3>
+                            <p class="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Co-Founder & VP</p>
+                        </div>
+                        <div class="interactive magnetic group flex flex-col border-t border-slate-800 pt-8">
+                            <div class="h-12 flex items-center font-mono text-ocean-600 text-sm group-hover:text-aurora-2 transition-colors">[TBP]</div>
+                            <h3 class="mt-6 text-2xl font-medium text-slate-200 group-hover:text-aurora-2 transition-colors">Tau Beta Pi</h3>
+                            <p class="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Engineering Honor Society</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="relative flex flex-col justify-end px-6 pb-12 pt-32 md:px-12 min-h-[80vh] overflow-hidden border-t border-slate-800/40 bg-ocean-900/40 scroll-section" data-num="07">
+                <div class="glow-orb w-[800px] h-[800px] bg-ocean-500/20 bottom-[-20%] right-[-10%]"></div>
+                
+                <div class="mx-auto w-full max-w-[1440px] relative z-10">
+                    <p class="font-mono text-[10px] tracking-[0.3em] text-slate-500 uppercase flex items-center gap-3 mb-6 reveal scramble" data-text="07 — CONTACT">
+                        07 — CONTACT
+                    </p>
+                    <a href="mailto:1tannercroddy@gmail.com" class="interactive magnetic group block w-fit reveal reveal-delay-1">
+                        <span class="block text-[clamp(4rem,12vw,10rem)] font-medium leading-[0.9] tracking-[-0.035em] text-slate-100 transition-all duration-500 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-aurora-2 group-hover:to-aurora-3">
+                            Let's talk
+                        </span>
+                    </a>
+
+                    <div class="mt-24 grid grid-cols-1 md:grid-cols-12 items-end gap-y-8 border-t border-slate-800/60 pt-8 reveal reveal-delay-2">
+                        <div class="col-span-12 flex flex-col gap-6 md:col-span-8 md:flex-row md:items-baseline md:gap-12">
+                            <a href="mailto:1tannercroddy@gmail.com" class="interactive magnetic font-mono text-[11px] md:text-xs tracking-[0.15em] text-slate-400 hover:text-aurora-2 transition-colors scramble" data-text="1TANNERCRODDY@GMAIL.COM">1tannercroddy@gmail.com</a>
+                            <div class="flex gap-8">
+                                <a href="https://www.linkedin.com/in/tanner-croddy/" target="_blank" class="interactive magnetic font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 hover:text-aurora-2 transition-colors scramble" data-text="LINKEDIN ↗">LINKEDIN ↗</a>
+                                <a href="Tanner_Croddy_Resume.pdf" download class="interactive magnetic font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 hover:text-aurora-2 transition-colors scramble" data-text="RÉSUMÉ">RÉSUMÉ</a>
+                            </div>
+                        </div>
+                        <div class="col-span-12 flex justify-start md:col-span-4 md:justify-end">
+                            <p class="font-mono text-[9px] uppercase tracking-[0.3em] text-slate-600">+1 925-219-5676</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <div id="view-deck" class="view">
+            <section id="deck-login-container" class="relative flex min-h-screen flex-col px-6 md:px-12 pt-32 bg-ocean-950 transition-opacity duration-500">
+                <div class="glow-orb w-[600px] h-[600px] bg-aurora-1/10 top-[20%] left-[20%] pointer-events-none"></div>
+
+                <div class="flex flex-1 flex-col justify-center pb-32 mx-auto w-full max-w-[1180px] relative z-10 reveal">
+                    <div class="mb-8 font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500">
+                        DECK — RESTRICTED · 2026
+                    </div>
+                    <h1 class="m-0 font-medium leading-[0.9] tracking-[-0.035em] text-slate-100 scramble" data-text="Enter passphrase" style="font-size:clamp(3.5rem, 8vw, 7rem)">
+                        Enter passphrase
+                    </h1>
+                    <h2 class="m-0 mt-6 max-w-[700px] font-light leading-[1.2] tracking-[-0.01em] text-slate-400 text-xl md:text-3xl">
+                        Confidential schematics — shared by request.
+                    </h2>
+
+                    <div class="mt-20 border-t border-slate-800/50 pt-12 group">
+                        <form onsubmit="handleDeckLogin(event)" class="flex w-full max-w-[480px] flex-col gap-4 relative overflow-hidden">
+                            <div class="absolute left-0 right-0 top-0 h-0.5 bg-aurora-1 opacity-0 group-focus-within:animate-laser-sweep shadow-[0_0_8px_#00ff87] z-20 pointer-events-none"></div>
+
+                            <label class="block relative">
+                                <span class="mb-3 block font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500">Passphrase</span>
+                                <div class="flex items-end gap-0 border-b border-slate-700 focus-within:border-aurora-1 transition-colors pb-2">
+                                    <span class="text-slate-600 font-mono text-lg mr-3">></span>
+                                    <input type="password" id="deck-pass" class="interactive flex-1 border-0 bg-transparent text-[18px] tracking-[0.2em] text-slate-200 placeholder:text-slate-700 focus:outline-none font-mono" placeholder="••••••••">
+                                    <button type="submit" class="interactive magnetic group/btn inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 hover:text-aurora-1 transition-colors scramble" data-text="UNLOCK →">
+                                        UNLOCK <span class="transition-transform group-hover/btn:translate-x-1">→</span>
+                                    </button>
+                                </div>
+                            </label>
+                            <span id="deck-feedback" class="font-mono text-[9px] uppercase tracking-[0.2em] text-slate-600 mt-2">Case-sensitive · Hint: TheSaltySailor</span>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section id="deck-content-container" class="relative hidden opacity-0 flex-col px-6 md:px-12 pt-32 pb-24 bg-ocean-950 transition-opacity duration-700">
+                <div class="mx-auto w-full max-w-[1440px] reveal">
+                    <div class="mb-8 font-mono text-[10px] uppercase tracking-[0.3em] text-aurora-1 flex items-center gap-3">
+                        <span class="w-2 h-2 bg-aurora-1 rounded-full animate-pulse"></span> CLEARANCE ACCEPTED
+                    </div>
+                    <h1 class="text-[clamp(3rem,6vw,6rem)] font-medium leading-[0.9] tracking-[-0.035em] text-slate-100 mb-4 scramble" data-text="Classified Dossier">Classified Dossier</h1>
+                    <p class="text-xl text-slate-400 font-light max-w-2xl border-b border-slate-800 pb-12">Detailed schematics of high-impact engineering solutions.</p>
+                </div>
+
+                <div class="mx-auto w-full max-w-[1440px] mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="interactive spotlight-card tilt-card aspect-video lg:aspect-[4/3] rounded-xl p-px bg-gradient-to-br from-aurora-2/40 to-slate-800/20 group reveal">
+                        <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
+                            <img src="data2.png" class="absolute inset-0 w-full h-full object-cover grayscale opacity-60 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                        </div>
+                        <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/40 group-hover:bg-ocean-950/10 transition-colors duration-500 overflow-hidden p-8 flex flex-col justify-between border border-ocean-400/10">
+                            <div class="absolute inset-0 tech-grid opacity-30 mix-blend-screen"></div>
+                            <div class="relative z-10 flex justify-between items-start">
+                                <span class="font-mono text-[9px] uppercase tracking-[0.3em] text-ocean-950 bg-aurora-2 px-2.5 py-1 rounded">Stats For Good</span>
+                                <span class="font-mono text-[10px] text-aurora-2 border border-aurora-2/30 px-2 py-1 rounded bg-ocean-950/80 backdrop-blur">Data Architecture</span>
+                            </div>
+                            <div class="relative z-10">
+                                <h3 class="text-2xl md:text-3xl font-medium text-slate-100 mb-2 drop-shadow-md">Institutional Analytics Platform</h3>
+                                <p class="text-slate-300 drop-shadow text-sm max-w-md">Processed extensive university data records (2022-2025) via Analysis & Information Management, creating an objective registration tool to combat skewed qualitative biases.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="interactive spotlight-card tilt-card aspect-video lg:aspect-[4/3] rounded-xl p-px bg-gradient-to-br from-aurora-3/40 to-slate-800/20 group reveal reveal-delay-1">
+                        <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
+                             <img src="https://heise.cloudimg.io/width/610/q85.png-lossy-85.webp-lossy-85.foil1/_www-heise-de_/imgs/18/4/7/8/1/8/4/3/waferc001_2522_64RX_0_1_-ab61df82ea0449c0.jpeg" class="absolute inset-0 w-full h-full object-cover grayscale opacity-60 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                        </div>
+                        <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/40 group-hover:bg-ocean-950/10 transition-colors duration-500 overflow-hidden p-8 flex flex-col justify-between border border-ocean-400/10">
+                            <div class="absolute inset-0 tech-grid opacity-30 mix-blend-screen"></div>
+                            <div class="relative z-10 flex justify-between items-start">
+                                <span class="font-mono text-[9px] uppercase tracking-[0.3em] text-white bg-aurora-3 px-2.5 py-1 rounded">TSMC Fab 21</span>
+                                <span class="font-mono text-[10px] text-aurora-3 border border-aurora-3/30 px-2 py-1 rounded bg-ocean-950/80 backdrop-blur">CMP Engineering</span>
+                            </div>
+                            <div class="relative z-10">
+                                <h3 class="text-2xl md:text-3xl font-medium text-slate-100 mb-2 drop-shadow-md">Micro-Defect Mitigation</h3>
+                                <p class="text-slate-300 drop-shadow text-sm max-w-md">Formulated predictive models for the structural processing of initial silicon wafers using microscopic precision machining methodologies to ensure frontline reliability.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="view-resume" class="view">
+            <section class="relative flex flex-col px-6 pb-24 pt-32 md:px-12 min-h-screen bg-ocean-950">
+                <div class="flex flex-col pb-10 mx-auto w-full max-w-[1180px] reveal">
+                    <div class="mb-8 font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500 scramble" data-text="RÉSUMÉ — 2026">
+                        RÉSUMÉ — 2026
+                    </div>
+                    <h1 class="m-0 leading-[0.9] tracking-[-0.035em] font-medium text-slate-100" style="font-size:clamp(4rem, 8.5vw, 8rem)">Tanner Croddy</h1>
+                    <h2 class="m-0 mt-6 max-w-[900px] font-light leading-[1.1] tracking-[-0.02em] text-slate-400 text-[clamp(24px,3vw,40px)]">
+                        Mechanical Engineer · CSWP
+                    </h2>
+
+                    <div class="flex flex-wrap items-end justify-between gap-6 border-t border-slate-800/50 pt-8 mt-16">
+                        <div class="flex flex-wrap gap-12">
+                            <div>
+                                <div class="mb-2 font-mono text-[9px] uppercase tracking-[0.3em] text-slate-500">Inquiries</div>
+                                <a href="mailto:1tannercroddy@gmail.com" class="interactive font-mono text-xs tracking-[0.1em] text-slate-300 hover:text-aurora-2 transition-colors">1tannercroddy@gmail.com</a>
+                            </div>
+                            <div>
+                                <div class="mb-2 font-mono text-[9px] uppercase tracking-[0.3em] text-slate-500">Base</div>
+                                <div class="font-mono text-xs tracking-[0.1em] text-slate-300">Miami, FL</div>
+                            </div>
+                        </div>
+                        <a href="Tanner_Croddy_Resume.pdf" download class="interactive magnetic group border border-slate-700 px-6 py-3.5 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-300 transition-colors hover:border-aurora-2 hover:bg-ocean-900/50 rounded flex items-center gap-3">
+                            Download PDF <span class="group-hover:translate-y-1 transition-transform">↓</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mx-auto w-full max-w-[1180px] mt-16 reveal reveal-delay-1">
+                    <div class="mb-12 font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500 border-t border-slate-800/50 pt-6">Experience · 01</div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 md:gap-12 mb-20 group">
+                        <div class="md:sticky md:top-32 self-start">
+                            <div class="text-[32px] md:text-[40px] leading-none tracking-[-0.02em] font-medium text-slate-200 transition-colors">TSMC Fab 21</div>
+                            <div class="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">Summer 2026</div>
+                        </div>
+                        <div>
+                            <div class="text-[24px] md:text-[30px] font-light text-slate-300">Equipment Engineer Intern</div>
+                            <div class="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">CMP · Process Optimization</div>
+                            <p class="mt-6 max-w-[720px] text-[16px] leading-[1.7] text-slate-400">
+                                Spearheaded advanced manufacturing protocols along the frontline Fab 21 semiconductor fabrication line. Formulated predictive models for initial silicon wafers using microscopic precision machining methodologies.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 md:gap-12 mb-20 group border-t border-slate-800/50 pt-12">
+                        <div class="md:sticky md:top-32 self-start">
+                            <div class="text-[32px] md:text-[40px] leading-none tracking-[-0.02em] font-medium text-slate-200 transition-colors">Outlier</div>
+                            <div class="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">2025 — Present</div>
+                        </div>
+                        <div>
+                            <div class="text-[24px] md:text-[30px] font-light text-slate-300">Generative AI Engineer</div>
+                            <div class="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">Physics Domain Expert</div>
+                            <p class="mt-6 max-w-[720px] text-[16px] leading-[1.7] text-slate-400">
+                                Transformed raw Large Language Models into accurate domain experts by training them in high-level engineering applications—specifically vector dynamics, multi-axis kinematics, complex thermochemistry, and classical thermodynamics.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <script>
+        /* ==========================================
+           Deck Authentication Logic
+        ========================================== */
+        function handleDeckLogin(e) {
+            e.preventDefault();
+            const input = document.getElementById('deck-pass').value;
+            const feedback = document.getElementById('deck-feedback');
+            
+            if(input === 'TheSaltySailor') {
+                const loginContainer = document.getElementById('deck-login-container');
+                const contentContainer = document.getElementById('deck-content-container');
+                
+                loginContainer.style.opacity = '0';
+                
+                setTimeout(() => {
+                    loginContainer.style.display = 'none';
+                    contentContainer.style.display = 'flex';
+                    void contentContainer.offsetWidth; 
+                    contentContainer.style.opacity = '1';
+                    initializeReveals();
+                }, 500);
+            } else {
+                feedback.innerText = 'ACCESS DENIED. INVALID CLEARANCE.';
+                feedback.classList.add('text-red-500');
+            }
+        }
+
+        /* ==========================================
+           Text Scramble Decoder
+        ========================================== */
+        class TextScramble {
+            constructor(el) {
+                this.el = el;
+                this.originalText = el.getAttribute('data-text') || el.innerText;
+                this.chars = '!<>-_\\/[]{}—=+*^?#_';
+                this.update = this.update.bind(this);
+                this.frameRequest = null;
+            }
+            setText() {
+                const length = this.originalText.length;
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = this.originalText[i] || '';
+                    const to = this.originalText[i] || '';
+                    const start = Math.floor(Math.random() * 20);
+                    const end = start + Math.floor(Math.random() * 20);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+            }
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span class="scramble-char">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete !== this.queue.length) {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+
+        document.querySelectorAll('.scramble').forEach(el => {
+            const fx = new TextScramble(el);
+            el.fx = fx; 
+            el.addEventListener('mouseenter', () => fx.setText());
+        });
+
+        /* ==========================================
+           Custom Physics Cursor + Magnetics + Liquid Spotlights
+        ========================================== */
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorRing = document.getElementById('cursor-ring');
+        const cursorCanvas = document.getElementById('cursor-canvas');
+        const cCtx = cursorCanvas.getContext('2d');
+        
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let ringX = mouseX;
+        let ringY = mouseY;
+        let isHovering = false;
+        let hoverFactor = 0;
+        
+        // Mobile performance check
+        const isMobile = window.innerWidth < 768 || window.matchMedia("(pointer: coarse)").matches;
+
+        if (!isMobile) {
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+            });
+
+            const magnetics = document.querySelectorAll('.magnetic');
+            magnetics.forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = `translate(0px, 0px)`;
+                });
+            });
+
+            // 3D Tilt Cards & Liquid Spotlights
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    if(card.classList.contains('spotlight-card')) {
+                        card.style.setProperty('--mouse-x', `${x}px`);
+                        card.style.setProperty('--mouse-y', `${y}px`);
+                    }
+
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -8; 
+                    const rotateY = ((x - centerX) / centerX) * 8;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                });
+            });
+
+            const interactives = document.querySelectorAll('.interactive, a, button, input');
+            interactives.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    isHovering = true;
+                    cursorRing.classList.add('active');
+                    cursorDot.classList.add('active');
+                });
+                el.addEventListener('mouseleave', () => {
+                    isHovering = false;
+                    cursorRing.classList.remove('active');
+                    cursorDot.classList.remove('active');
+                });
+            });
+        }
+
+        function animateCursorLogic() {
+            if (isMobile) return; // Save CPU on mobile
+
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+
+            hoverFactor += (isHovering ? 0.08 : -0.08);
+            hoverFactor = Math.max(0, Math.min(1, hoverFactor));
+
+            if (hoverFactor > 0.01) {
+                let time = Date.now() * 0.003;
+                cCtx.clearRect(0,0,140,140);
+                
+                cCtx.beginPath();
+                for(let i=0; i<=140; i+=2) {
+                    let taper = Math.sin((i/140) * Math.PI);
+                    let y = 70 + (Math.sin(i * 0.08 - time * 2) * 18 + Math.cos(i * 0.05 + time) * 10) * hoverFactor * taper;
+                    if(i===0) cCtx.moveTo(i,y); else cCtx.lineTo(i,y);
+                }
+                cCtx.lineWidth = 2;
+                let cGrad = cCtx.createLinearGradient(0,0,140,0);
+                cGrad.addColorStop(0, '#00ff87'); 
+                cGrad.addColorStop(0.5, '#60efff');
+                cGrad.addColorStop(1, '#7b2cbf'); 
+                cCtx.strokeStyle = cGrad;
+                cCtx.stroke();
+            }
+        }
+
+        /* ==========================================
+           Scroll Reveals, Routing & Auto-Hide HUDs
+        ========================================== */
+        const header = document.getElementById('main-header');
+        const activeNumEl = document.getElementById('active-section-num');
+        const scrollLine = document.getElementById('scroll-progress-line');
+        const scrollState = document.getElementById('scroll-state');
+        const telemetryHud = document.getElementById('telemetry-hud');
+        const pressureVignette = document.getElementById('pressure-vignette');
+        const gyroHud = document.getElementById('gyro-hud');
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting && window.location.hash !== '#deck' && window.location.hash !== '#resume') {
+                    const num = entry.target.getAttribute('data-num');
+                    if(num && num !== "00") activeNumEl.innerText = num;
+                }
+            });
+        }, { threshold: 0.3 });
+        document.querySelectorAll('.scroll-section').forEach(sec => sectionObserver.observe(sec));
+
+        const revealOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    const masks = entry.target.querySelectorAll('.text-mask');
+                    if(masks.length > 0) masks.forEach(m => m.classList.add('active'));
+                    if(entry.target.classList.contains('text-mask')) entry.target.classList.add('active');
+                    
+                    const scrambles = entry.target.querySelectorAll('.scramble');
+                    scrambles.forEach(scrambleEl => { if(scrambleEl.fx) scrambleEl.fx.setText(); });
+                    if(entry.target.classList.contains('scramble') && entry.target.fx) {
+                        entry.target.fx.setText();
+                    }
+                }
+            });
+        }, revealOptions);
+
+        function initializeReveals() {
+            revealObserver.disconnect();
+            setTimeout(() => {
+                document.querySelectorAll('.reveal').forEach(el => {
+                    el.classList.remove('active');
+                    el.querySelectorAll('.text-mask').forEach(m => m.classList.remove('active'));
+                    revealObserver.observe(el);
+                });
+            }, 100);
+        }
+
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            if (scrollY > 30) header.classList.add('glass');
+            else header.classList.remove('glass');
+
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const scrollPercent = maxScroll > 0 ? (scrollY / maxScroll) : 0;
+            
+            scrollLine.style.transform = `scaleY(${scrollPercent})`;
+            
+            const darkness = Math.min(0.8, scrollPercent * 1.5);
+            pressureVignette.style.background = `radial-gradient(circle at center, transparent 40%, rgba(1, 5, 10, ${darkness}) 100%)`;
+            
+            // Auto-hide HUDs at bottom
+            if(window.location.hash !== '#deck' && window.location.hash !== '#resume') {
+                const nearBottom = window.innerHeight + scrollY >= document.body.offsetHeight - 250;
+                if(telemetryHud) {
+                    telemetryHud.style.opacity = nearBottom ? '0' : '1';
+                    telemetryHud.style.transform = nearBottom ? 'translateY(20px)' : 'translateY(0)';
+                    telemetryHud.style.pointerEvents = nearBottom ? 'none' : 'auto';
+                }
+                if(gyroHud && !isMobile) {
+                    gyroHud.style.opacity = nearBottom ? '0' : '0.6';
+                    gyroHud.style.pointerEvents = nearBottom ? 'none' : 'auto';
+                }
+            }
+
+            scrollState.innerText = "IN MOTION";
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => { scrollState.innerText = "AT REST"; }, 150);
+        });
+
+        function handleRouting() {
+            let hash = window.location.hash || '#home';
+            let targetView = 'home';
+            let targetSection = null;
+
+            if (hash === '#deck') targetView = 'deck';
+            else if (hash === '#resume') targetView = 'resume';
+            else {
+                targetView = 'home';
+                targetSection = hash.replace('#', ''); 
+            }
+            
+            document.querySelectorAll('.view').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none'; 
+            });
+            
+            const activeView = document.getElementById('view-' + targetView);
+            if(activeView) {
+                activeView.style.display = 'block';
+                void activeView.offsetWidth; 
+                activeView.classList.add('active');
+            }
+
+            if (targetView === 'home') {
+                if (targetSection && targetSection !== 'home') {
+                    const section = document.getElementById(targetSection);
+                    if (section) setTimeout(() => { section.scrollIntoView({ behavior: 'smooth' }); }, 50);
+                } else {
+                    window.scrollTo({top: 0, behavior: 'instant'});
+                }
+            } else {
+                window.scrollTo({top: 0, behavior: 'instant'}); 
+            }
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-aurora-2');
+                link.classList.add('text-slate-400');
+                if(link.getAttribute('href') === hash || (hash === '' && link.getAttribute('href') === '#work')) {
+                    link.classList.remove('text-slate-400');
+                    link.classList.add('text-aurora-2');
+                }
+            });
+
+            initializeReveals();
+        }
+
+        window.addEventListener('hashchange', handleRouting);
+        window.addEventListener('DOMContentLoaded', () => {
+            handleRouting();
+            const topScrambles = document.querySelectorAll('#home-top .scramble');
+            topScrambles.forEach(s => { if(s.fx) s.fx.setText(); });
+        });
+
+        /* ==========================================
+           Advanced Canvas Engine (Topography & Gyro)
+           Optimized for handheld performance
+        ========================================== */
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+        const gyroInner = document.getElementById('gyro-inner');
+        let width, height;
+        let waves = [];
+        let wakeParticles = [];
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            
+            // Reduce complexity on mobile to save battery
+            const numWaves = isMobile ? 3 : 6;
+            
+            waves = [];
+            for(let w = 0; w < numWaves; w++) {
+                waves.push({
+                    yBase: height * (0.6 + w * 0.08),
+                    baseAmp: 50 + Math.random() * 60,
+                    ampVar: 20 + Math.random() * 40,
+                    ampSpeed: 0.0005 + Math.random() * 0.001,
+                    length: 0.002 + Math.random() * 0.002,
+                    speed: 0.002 + Math.random() * 0.005,
+                    offset: Math.random() * 100,
+                });
+            }
+        }
+
+        let lastMouseX = mouseX;
+        let lastMouseY = mouseY;
+        
+        function animateWaves() {
+            requestAnimationFrame(animateWaves);
+            ctx.clearRect(0, 0, width, height);
+
+            let time = Date.now();
+            let mouseInfluence = isMobile ? 0 : (mouseX / width - 0.5) * 40;
+            // Draw fewer line segments on mobile for performance
+            let step = isMobile ? 30 : 15;
+
+            waves.forEach((wave, idx) => {
+                let currentAmp = wave.baseAmp + Math.sin(time * wave.ampSpeed) * wave.ampVar;
+                let startY = wave.yBase + Math.sin(wave.offset) * currentAmp;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, height);
+                ctx.lineTo(0, startY);
+                for (let i = 0; i <= width; i += step) { 
+                    let y = wave.yBase + 
+                            Math.sin(i * wave.length + wave.offset) * currentAmp +
+                            Math.sin(i * wave.length * 2 - wave.offset * 1.5) * (currentAmp * 0.3) + 
+                            mouseInfluence;
+                    ctx.lineTo(i, y);
+                }
+                ctx.lineTo(width, height);
+                ctx.fillStyle = '#01050a'; 
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(0, startY);
+                for (let i = 0; i <= width; i += step) { 
+                    let y = wave.yBase + 
+                            Math.sin(i * wave.length + wave.offset) * currentAmp +
+                            Math.sin(i * wave.length * 2 - wave.offset * 1.5) * (currentAmp * 0.3) + 
+                            mouseInfluence;
+                    ctx.lineTo(i, y);
+                }
+                
+                let grad = ctx.createLinearGradient(0, 0, width, 0);
+                let shimmer = Math.sin(time * 0.001 + idx) * 0.02;
+                grad.addColorStop(0, `rgba(0, 255, 135, ${0.1 + shimmer})`);
+                grad.addColorStop(0.33, `rgba(96, 239, 255, ${0.15 - shimmer})`);
+                grad.addColorStop(0.66, `rgba(0, 97, 255, ${0.1 + shimmer})`);
+                grad.addColorStop(1, `rgba(123, 44, 191, ${0.15 - shimmer})`);
+                ctx.strokeStyle = grad; 
+                ctx.lineWidth = 1.5;
+                ctx.stroke(); 
+                
+                wave.offset += wave.speed;
+            });
+
+            // Disable wake particles and gyroscope on mobile to maintain 60FPS
+            if (!isMobile) {
+                let speed = Math.abs(mouseX - lastMouseX) + Math.abs(mouseY - lastMouseY);
+                if(speed > 5 && Math.random() > 0.5) { 
+                    wakeParticles.push({
+                        x: mouseX, y: mouseY,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        life: 1.0, size: Math.random() * 3 + 1
+                    });
+                }
+                lastMouseX = mouseX; lastMouseY = mouseY;
+
+                for(let i=0; i<wakeParticles.length; i++) {
+                    let p = wakeParticles[i];
+                    p.x += p.vx; p.y += p.vy;
+                    p.life -= 0.02;
+                    
+                    if(p.life <= 0) { wakeParticles.splice(i,1); i--; continue; }
+                    
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(96, 239, 255, ${p.life * 0.8})`;
+                    ctx.shadowBlur = 10; ctx.shadowColor = '#60efff';
+                    ctx.fill(); ctx.shadowBlur = 0;
+                }
+
+                if(gyroInner) {
+                    const pitch = ((mouseY / window.innerHeight) - 0.5) * -30; 
+                    const roll = ((mouseX / window.innerWidth) - 0.5) * 45; 
+                    gyroInner.style.transform = `rotate(${roll}deg) translateY(${pitch}px)`;
+                }
+            }
+
+            animateCursorLogic();
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        animateWaves();
+
+    </script>
+</body>
+</html>
