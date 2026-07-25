@@ -124,34 +124,16 @@
             transition: background 0.3s ease-out;
         }
 
-        #cursor-dot {
-            position: fixed; top: 0; left: 0; width: 4px; height: 4px;
-            background-color: #60efff; border-radius: 50%; pointer-events: none;
-            z-index: 10000; transform: translate(-50%, -50%);
-            transition: opacity 0.2s, transform 0.1s;
+        /* Siri Waveform Cursor */
+        #siri-cursor {
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 115px; height: 115px;
+            pointer-events: none; 
+            z-index: 10000; 
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen; /* Forces the overlapping colors to glow */
         }
-        #cursor-ring {
-            position: fixed; top: 0; left: 0; width: 32px; height: 32px;
-            border: 1px solid rgba(96, 239, 255, 0.4); border-radius: 50%;
-            pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
-            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s, border-color 0.4s, backdrop-filter 0.4s;
-            display: flex; align-items: center; justify-content: center;
-        }
-        
-        #cursor-ring.active {
-            width: 70px; height: 70px; 
-            background-color: rgba(0, 5, 10, 0.3); 
-            backdrop-filter: blur(1.5px); -webkit-backdrop-filter: blur(1.5px);
-            border-color: rgba(96, 239, 255, 0.25); 
-            box-shadow: 0 0 25px rgba(0,0,0,0.6), inset 0 0 15px rgba(96, 239, 255, 0.15);
-        }
-        #cursor-dot.active { opacity: 0; } 
-
-        #cursor-canvas {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 140px; height: 140px; pointer-events: none; opacity: 0; transition: opacity 0.4s;
-        }
-        #cursor-ring.active #cursor-canvas { opacity: 1; }
 
         .spotlight-card { position: relative; overflow: hidden; --mouse-x: 50%; --mouse-y: 50%; }
         .spotlight-card::before {
@@ -202,8 +184,7 @@
     <div id="pressure-vignette"></div>
     <div class="fixed inset-0 z-0 pointer-events-none tech-grid mix-blend-screen opacity-50"></div>
 
-    <div id="cursor-dot"></div>
-    <div id="cursor-ring"><canvas id="cursor-canvas" width="140" height="140"></canvas></div>
+    <canvas id="siri-cursor" width="400" height="400"></canvas>
     <canvas id="waveCanvas" class="fixed inset-0 z-0 pointer-events-none opacity-70"></canvas>
 
     <header class="fixed inset-x-0 top-0 z-50 transition-all duration-500 h-20 flex items-center border-b border-transparent bg-transparent" id="main-header">
@@ -412,7 +393,7 @@
                         <div class="grid grid-cols-12 items-baseline gap-x-4 border-t border-ocean-500/20 pt-6 md:gap-x-6 reveal">
                             <p class="order-2 col-span-6 mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 md:order-1 md:col-span-3 md:mt-0">Nano CMP Equipment Engineer <span class="mx-2 text-slate-700">·</span> 2026</p>
                             <h2 class="order-1 col-span-12 text-left md:text-center text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1] tracking-[-0.03em] md:order-2 md:col-span-6 text-slate-100 scramble" data-text="TSMC Fab 21">
-                                TSMC Fab 21
+                                <a href="https://www.tsmc.com/static/abouttsmcaz/index.htm" target="_blank" class="hover:text-aurora-3 transition-colors">TSMC Fab 21</a>
                             </h2>
                             <p class="order-3 col-span-6 mt-4 text-right font-mono text-[10px] tracking-[0.3em] text-aurora-3 md:col-span-3 md:mt-0">03</p>
                         </div>
@@ -445,25 +426,23 @@
                             
                             <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 relative">
                                 <div class="glow-orb w-[400px] h-[400px] bg-aurora-3/20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                                
-                                <div class="interactive spotlight-card tilt-card aspect-[4/3] w-full rounded-xl p-px bg-gradient-to-br from-aurora-3/40 to-slate-800/20 group">
+                                <a href="https://www.tsmc.com/static/abouttsmcaz/index.htm" target="_blank" class="interactive spotlight-card tilt-card aspect-[4/3] w-full rounded-xl p-px bg-gradient-to-br from-aurora-3/40 to-slate-800/20 group block">
                                     <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
                                         <img src="https://heise.cloudimg.io/width/610/q85.png-lossy-85.webp-lossy-85.foil1/_www-heise-de_/imgs/18/4/7/8/1/8/4/3/waferc001_2522_64RX_0_1_-ab61df82ea0449c0.jpeg" alt="Silicon Array" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
                                     </div>
                                     <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/20 group-hover:bg-transparent overflow-hidden flex flex-col items-center justify-center border border-ocean-400/10 transition-colors duration-500">
                                         <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ocean-400/80 group-hover:text-aurora-3 transition-colors duration-500 bg-ocean-950/80 backdrop-blur px-3 py-1.5 rounded border border-ocean-500/30 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">Silicon Array</span>
                                     </div>
-                                </div>
+                                </a>
 
-                                <div class="interactive spotlight-card tilt-card aspect-[4/3] w-full rounded-xl p-px bg-gradient-to-br from-ocean-500/30 to-slate-800/20 group sm:mt-16">
+                                <a href="https://www.tsmc.com/static/abouttsmcaz/index.htm" target="_blank" class="interactive spotlight-card tilt-card aspect-[4/3] w-full rounded-xl p-px bg-gradient-to-br from-ocean-500/30 to-slate-800/20 group sm:mt-16 block">
                                     <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
                                         <img src="https://www.infindus.com/wp-content/uploads/2020/12/ebara.png" alt="CMP Processing" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
                                     </div>
                                     <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/20 group-hover:bg-transparent overflow-hidden flex flex-col items-center justify-center border border-ocean-400/10 transition-colors duration-500">
                                         <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-ocean-400/80 group-hover:text-aurora-3 transition-colors duration-500 bg-ocean-950/80 backdrop-blur px-3 py-1.5 rounded border border-ocean-500/30 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">CMP Processing</span>
                                     </div>
-                                </div>
-                            </div>
+                                </a>
                         </div>
                     </div>
                 </section>
@@ -534,16 +513,16 @@
             <section id="writing" class="relative py-20 md:py-36 px-6 md:px-12 border-t border-slate-800/40 bg-ocean-900/20 scroll-section" data-num="05">
                 <div class="mx-auto max-w-[1440px]">
                     <div class="grid grid-cols-12 items-baseline gap-x-4 border-t border-ocean-500/20 pt-6 md:gap-x-6 reveal">
-                        <p class="order-2 col-span-6 mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 md:order-1 md:col-span-3 md:mt-0">Tech Logs <span class="mx-2 text-slate-700">·</span> Journals</p>
+                        <p class="order-2 col-span-6 mt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 md:order-1 md:col-span-3 md:mt-0">Blog <span class="mx-2 text-slate-700">·</span> White Papers</p>
                         <h2 class="order-1 col-span-12 text-left md:text-center text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[1] tracking-[-0.03em] md:order-2 md:col-span-6 text-slate-100 scramble" data-text="Transmissions">
-                            Transmissions
+                            Publications
                         </h2>
                         <p class="order-3 col-span-6 mt-4 text-right font-mono text-[10px] tracking-[0.3em] text-slate-500 md:col-span-3 md:mt-0">05</p>
                     </div>
 
                     <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-10 reveal reveal-delay-1">
                         <!-- Article 1 -->
-                        <a href="#" class="interactive tilt-card group block w-full">
+                        <a href="https://croddy.com/author/tannercroddy/" target="_blank" class="interactive tilt-card group block w-full">
                             <div class="tilt-bg aspect-[16/9] w-full rounded-lg bg-ocean-950 border border-slate-800 overflow-hidden relative mb-6">
                                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-gZ1rOHygliFgbwQhp5_5U-UAsyj4ZkHNG3A_RXdbEA&s=10" alt="The Global Classroom" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-t from-ocean-950/90 via-ocean-900/20 to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
@@ -565,21 +544,21 @@
                         </a>
 
                         <!-- Article 2 -->
-                        <a href="#" class="interactive tilt-card group block w-full mt-10 md:mt-0">
+                        <a href="file:///C:/Users/1tann/OneDrive%20-%20Florida%20International%20University/Spring%202025/Model%20UN/Final%20VF.pdf" target="_blank" class="interactive tilt-card group block w-full mt-10 md:mt-0">
                             <div class="tilt-bg aspect-[16/9] w-full rounded-lg bg-ocean-950 border border-slate-800 overflow-hidden relative mb-6">
-                                <img src="https://miro.medium.com/1*s64c4lijuJLVm-PMTdTRCQ.jpeg" alt="Saxis: Worldbuilding" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                                <img src="https://i.guim.co.uk/img/media/702d0ff797f348b26b45bab545db8eaae200827b/0_0_3000_1801/master/3000.jpg?width=700&quality=85&auto=format&fit=max&s=f8eecb0689ccbe02941b73e7b00669b2" alt="Disputed Islands" class="absolute inset-0 w-full h-full object-cover grayscale opacity-70 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-t from-ocean-950/90 via-ocean-900/20 to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
                                 <span class="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100 bg-gradient-to-r from-aurora-3 to-aurora-4 z-20"></span>
                             </div>
                             <div class="tilt-content flex flex-col gap-3 px-2">
                                 <div class="flex justify-between items-baseline">
-                                    <h3 class="text-2xl md:text-3xl font-medium text-slate-200 group-hover:text-aurora-3 transition-colors duration-300">Saxis: Worldbuilding</h3>
+                                    <h3 class="text-2xl md:text-3xl font-medium text-slate-200 group-hover:text-aurora-3 transition-colors duration-300">Disputed Islands & Territorial Seas</h3>
                                     <span class="font-mono text-[10px] tracking-[0.2em] text-slate-500">Log</span>
                                 </div>
-                                <p class="text-slate-400 text-sm leading-relaxed max-w-xl">Architecting a very tech-oriented science-fiction and progression fantasy series with some witty humor.</p>
+                                <p class="text-slate-400 text-sm leading-relaxed max-w-xl">A comprehensive white paper examining sovereignty assertions, UNCLOS ambiguity, and international diplomatic strategies in the East China Sea.</p>
                                 <div class="flex items-center justify-between mt-4">
                                     <div class="flex gap-2">
-                                        <span class="border border-slate-700 px-2.5 py-1 rounded font-mono text-[9px] uppercase tracking-[0.2em] text-slate-400">Creative</span>
+                                        <span class="border border-slate-700 px-2.5 py-1 rounded font-mono text-[9px] uppercase tracking-[0.2em] text-slate-400">International Relations</span>
                                     </div>
                                     <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500 group-hover:text-aurora-3 transition-colors scramble" data-text="READ ↗">READ ↗</span>
                                 </div>
@@ -698,8 +677,7 @@
                     <p class="text-xl text-slate-400 font-light max-w-2xl border-b border-slate-800 pb-12">Detailed schematics of high-impact engineering solutions.</p>
                 </div>
 
-                <div class="mx-auto w-full max-w-[1440px] mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="interactive spotlight-card tilt-card aspect-video lg:aspect-[4/3] rounded-xl p-px bg-gradient-to-br from-aurora-2/40 to-slate-800/20 group reveal">
+                <a href="https://statsforgood.com" target="_blank" class="interactive spotlight-card tilt-card aspect-video lg:aspect-[4/3] rounded-xl p-px bg-gradient-to-br from-aurora-2/40 to-slate-800/20 group reveal block">
                         <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
                             <img src="data2.png" class="absolute inset-0 w-full h-full object-cover grayscale opacity-60 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
                         </div>
@@ -714,10 +692,10 @@
                                 <p class="text-slate-300 drop-shadow text-sm max-w-md">Processed extensive university data records (2022-2025) via Analysis & Information Management, creating an objective registration tool to combat skewed qualitative biases.</p>
                             </div>
                         </div>
-                    </div>
-                    <div class="interactive spotlight-card tilt-card aspect-video lg:aspect-[4/3] rounded-xl p-px bg-gradient-to-br from-aurora-3/40 to-slate-800/20 group reveal reveal-delay-1">
+                    </a>
+                    <a href="https://www.tsmc.com/static/abouttsmcaz/index.htm" target="_blank" class="interactive spotlight-card tilt-card aspect-video lg:aspect-[4/3] rounded-xl p-px bg-gradient-to-br from-aurora-3/40 to-slate-800/20 group reveal reveal-delay-1 block">
                         <div class="tilt-bg absolute inset-0 bg-ocean-900 rounded-xl overflow-hidden">
-                             <img src="https://heise.cloudimg.io/width/610/q85.png-lossy-85.webp-lossy-85.foil1/_www-heise-de_/imgs/18/4/7/8/1/8/4/3/waferc001_2522_64RX_0_1_-ab61df82ea0449c0.jpeg" class="absolute inset-0 w-full h-full object-cover grayscale opacity-60 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
+                            <img src="https://heise.cloudimg.io/width/610/q85.png-lossy-85.webp-lossy-85.foil1/_www-heise-de_/imgs/18/4/7/8/1/8/4/3/waferc001_2522_64RX_0_1_-ab61df82ea0449c0.jpeg" class="absolute inset-0 w-full h-full object-cover grayscale opacity-60 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105">
                         </div>
                         <div class="tilt-content spotlight-content relative w-full h-full rounded-xl bg-ocean-950/40 group-hover:bg-ocean-950/10 transition-colors duration-500 overflow-hidden p-8 flex flex-col justify-between border border-ocean-400/10">
                             <div class="absolute inset-0 tech-grid opacity-30 mix-blend-screen"></div>
@@ -727,10 +705,10 @@
                             </div>
                             <div class="relative z-10">
                                 <h3 class="text-2xl md:text-3xl font-medium text-slate-100 mb-2 drop-shadow-md">Nano-Defect Mitigation</h3>
-                                <p class="text-slate-300 drop-shadow text-sm max-w-md">Working under the Nano Chemical-Mechanical Planarization department, I developed the first-of-their-kind PVA Roller jigs and new installation SOP's. This worked such that the installation and maintenance of PVA's in EBARA F-REX300X cleaners 1A and 1B became significantly easier for engineering technicians and equipment engineers. Further, the jigs reduced brush particle interaction, increasing part lifetime and wafer lot quality. The structural polishing PVA brush roller removes BTA & metal residue from the P78 and P26 doping layers of the silicon wafers, requiring Angstrom-level precision machining that my jig and SOP improved, allowing for 50% fewer replacements over the same timeline due to particle concerns and 20% fewer wafer scratches from the PVA brush rollers overall.</p>
+                                <p class="text-slate-300 drop-shadow text-sm max-w-md">Working under the Nano Chemical-Mechanical Planarization department, I developed the first-of-their-kind PVA Roller jigs and new installation SOP's. This worked such that the installation and maintenance of PVA's in EBARA F-REX300X cleaners 1A and 1B became significantly easier for engineering technicians and equipment engineers. Further, the jigs reduced brush particle interaction, increasing part lifetime and wafer lot quality.</p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </section>
         </div>
@@ -888,12 +866,138 @@
         });
 
         /* ==========================================
-           Custom Physics Cursor + Magnetics + Liquid Spotlights
+           Siri Waveform Cursor Engine
         ========================================== */
-        const cursorDot = document.getElementById('cursor-dot');
-        const cursorRing = document.getElementById('cursor-ring');
-        const cursorCanvas = document.getElementById('cursor-canvas');
-        const cCtx = cursorCanvas.getContext('2d');
+        const siriCursor = document.getElementById('siri-cursor');
+let gl, timeLocation, resolutionLocation, webGlStartTime;
+
+if (siriCursor) {
+    // Initialize WebGL with transparency enabled
+    gl = siriCursor.getContext('webgl', { alpha: true }) || siriCursor.getContext('experimental-webgl', { alpha: true });
+
+    if (gl) {
+        const vsSource = `
+            attribute vec2 a_position;
+            void main() {
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+        `;
+
+        const fsSource = `
+            #ifdef GL_FRAGMENT_PRECISION_HIGH
+                precision highp float;
+            #else
+                precision mediump float;
+            #endif
+
+            uniform float u_time;
+            uniform vec2 u_resolution;
+
+            vec2 random2(vec2 st){
+                st = vec2(dot(st, vec2(127.1,311.7)), dot(st,vec2(269.5,183.3)));
+                return -1.0+2.0*fract(sin(st)*43758.5453123);
+            }
+
+            float noise(vec2 st) {
+                vec2 i = floor(st);
+                vec2 f = fract(st);
+                vec2 u = f*f*(3.0-2.0*f);
+                return mix( mix(dot(random2(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),
+                                dot(random2(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0)), u.x),
+                            mix(dot(random2(i + vec2(0.0,1.0)), f - vec2(0.0,1.0)),
+                                dot(random2(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0)), u.x), u.y);
+            }
+
+            vec3 drawThickRibbon(vec2 uv, float time, vec3 colorStart, vec3 colorEnd, 
+                                 float yOffset, float freq, float amp, float speed, 
+                                 float phase, float baseThickness, float topEdgeSharp, 
+                                 float bottomEdgeSharp) {
+                float envArg = uv.x * (1.570796 / 0.85);
+                float envelope = pow(max(0.0, cos(envArg)), 2.5);
+
+                float n = noise(vec2(uv.x * 2.5 - time * 0.4, time * 0.2)) * 0.03;
+                float harmonic = sin(uv.x * freq + time * speed + phase) * amp;
+                float waveY = (harmonic + n + yOffset) * envelope;
+
+                float thickness = baseThickness + sin(uv.x * 5.0 - time * 2.5 + phase) * (baseThickness * 0.6);
+                thickness *= envelope;
+
+                float dist = uv.y - waveY;
+                float sPos = mix(2.5 / max(0.001, thickness), 400.0, topEdgeSharp);
+                float sNeg = mix(2.5 / max(0.001, thickness), 400.0, bottomEdgeSharp);
+                float glow = dist > 0.0 ? exp(-dist * sPos) : exp(dist * sNeg);
+
+                glow = max(0.0, glow - 0.02);
+
+                float blend = smoothstep(-0.5, 0.5, uv.x);
+                vec3 col = mix(colorStart, colorEnd, blend);
+                float mask = smoothstep(0.86, 0.84, abs(uv.x));
+
+                return col * glow * mask;
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / u_resolution.xy * 2.0 - 1.0;
+                uv.y *= u_resolution.y / u_resolution.x;
+
+                float t = u_time * 4.0;
+                vec3 finalColor = vec3(0.0);
+
+                vec3 crimson = vec3(1.0, 0.05, 0.1);
+                vec3 amber = vec3(1.0, 0.5, 0.0);
+                finalColor += drawThickRibbon(uv, t, crimson, amber, 0.24, 1.8, 0.12, 1.2, 0.0, 0.14, 1.0, 0.0) * 1.1;
+
+                vec3 darkBlue = vec3(0.02, 0.1, 1.0);
+                vec3 cyanBlue = vec3(0.0, 0.6, 1.0);
+                finalColor += drawThickRibbon(uv, t, darkBlue, cyanBlue, -0.24, 2.2, 0.10, 1.1, 2.0, 0.14, 0.0, 1.0) * 1.1;
+
+                vec3 green = vec3(0.1, 1.0, 0.3);
+                vec3 cyan = vec3(0.0, 0.9, 1.0);
+                finalColor += drawThickRibbon(uv, t, green, cyan, 0.0, 2.7, 0.09, 1.4, 4.0, 0.09, 0.1, 0.1) * 1.3;
+
+                vec3 coreCyan = vec3(0.5, 1.0, 0.8);
+                vec3 coreWhite = vec3(0.8, 0.95, 1.0);
+                finalColor += drawThickRibbon(uv, t, coreCyan, coreWhite, 0.01, 2.7, 0.09, 1.4, 4.0, 0.03, 0.6, 0.6) * 1.6;
+
+                finalColor = pow(max(finalColor, vec3(0.0)), vec3(1.6 / 2.2));
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
+
+        function compileShader(sourceCode, type) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, sourceCode);
+            gl.compileShader(shader);
+            return shader;
+        }
+
+        const program = gl.createProgram();
+        gl.attachShader(program, compileShader(vsSource, gl.VERTEX_SHADER));
+        gl.attachShader(program, compileShader(fsSource, gl.FRAGMENT_SHADER));
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const vertices = new Float32Array([-1.0,-1.0,  1.0,-1.0,  -1.0,1.0,  -1.0,1.0,  1.0,-1.0,  1.0,1.0]);
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+        const positionLocation = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        timeLocation = gl.getUniformLocation(program, "u_time");
+        resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+
+        // Setup viewport and resolution uniform
+        gl.viewport(0, 0, siriCursor.width, siriCursor.height);
+        gl.uniform2f(resolutionLocation, siriCursor.width, siriCursor.height);
+
+        // Set background to fully transparent
+        gl.clearColor(0.0, 0.0, 0.0, 0.0);
+        webGlStartTime = Date.now();
+    }
+}
         
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
@@ -901,16 +1005,24 @@
         let ringY = mouseY;
         let isHovering = false;
         let hoverFactor = 0;
-        
+
         // Mobile performance check
         const isMobile = window.innerWidth < 768 || window.matchMedia("(pointer: coarse)").matches;
 
-        if (!isMobile) {
-            document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-                cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
-            });
+        document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    });
+    document.addEventListener('touchmove', (e) => {
+    mouseX = e.touches[0].clientX;
+    mouseY = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchstart', (e) => {
+    mouseX = e.touches[0].clientX;
+    mouseY = e.touches[0].clientY;
+    }, { passive: true });
+
+if (!isMobile) { // Keep this opening brace for the magnetic buttons logic directly below it
 
             const magnetics = document.querySelectorAll('.magnetic');
             magnetics.forEach(btn => {
@@ -950,49 +1062,26 @@
 
             const interactives = document.querySelectorAll('.interactive, a, button, input');
             interactives.forEach(el => {
-                el.addEventListener('mouseenter', () => {
-                    isHovering = true;
-                    cursorRing.classList.add('active');
-                    cursorDot.classList.add('active');
-                });
-                el.addEventListener('mouseleave', () => {
-                    isHovering = false;
-                    cursorRing.classList.remove('active');
-                    cursorDot.classList.remove('active');
-                });
+                el.addEventListener('mouseenter', () => { isHovering = true; });
+                el.addEventListener('mouseleave', () => { isHovering = false; });
             });
         }
 
+        let orbTime = 0;
         function animateCursorLogic() {
-            if (isMobile) return; // Save CPU on mobile
+    if (!gl || !siriCursor) return; // Removed the isMobile return block so it runs on phones
 
-            ringX += (mouseX - ringX) * 0.15;
-            ringY += (mouseY - ringY) * 0.15;
-            cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+    // Smoothly track the mouse position for the canvas container
+    ringX += (mouseX - ringX) * 0.2;
+    ringY += (mouseY - ringY) * 0.2;
+    siriCursor.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%,-50%)`;
 
-            hoverFactor += (isHovering ? 0.08 : -0.08);
-            hoverFactor = Math.max(0, Math.min(1, hoverFactor));
-
-            if (hoverFactor > 0.01) {
-                let time = Date.now() * 0.003;
-                cCtx.clearRect(0,0,140,140);
-                
-                cCtx.beginPath();
-                for(let i=0; i<=140; i+=2) {
-                    let taper = Math.sin((i/140) * Math.PI);
-                    let y = 70 + (Math.sin(i * 0.08 - time * 2) * 18 + Math.cos(i * 0.05 + time) * 10) * hoverFactor * taper;
-                    if(i===0) cCtx.moveTo(i,y); else cCtx.lineTo(i,y);
-                }
-                cCtx.lineWidth = 2;
-                let cGrad = cCtx.createLinearGradient(0,0,140,0);
-                cGrad.addColorStop(0, '#00ff87'); 
-                cGrad.addColorStop(0.5, '#60efff');
-                cGrad.addColorStop(1, '#7b2cbf'); 
-                cCtx.strokeStyle = cGrad;
-                cCtx.stroke();
-            }
-        }
-
+    // Render the WebGL shader
+    const currentTime = (Date.now() - webGlStartTime) / 1000.0;
+    gl.uniform1f(timeLocation, currentTime);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+}
         /* ==========================================
            Scroll Reveals, Routing & Auto-Hide HUDs
         ========================================== */
@@ -1151,12 +1240,12 @@
             waves = [];
             for(let w = 0; w < numWaves; w++) {
                 waves.push({
-                    yBase: height * (0.6 + w * 0.08),
-                    baseAmp: 50 + Math.random() * 60,
-                    ampVar: 20 + Math.random() * 40,
-                    ampSpeed: 0.0005 + Math.random() * 0.001,
-                    length: 0.002 + Math.random() * 0.002,
-                    speed: 0.002 + Math.random() * 0.005,
+                    yBase: height * (0.55 + w * 0.08),
+                    baseAmp: 80 + Math.random() * 80, // Increased base amplitude
+                    ampVar: 50 + Math.random() * 60,  // Increased pulsing variance
+                    ampSpeed: 0.0005 + Math.random() * 0.0015,
+                    length: 0.0015 + Math.random() * 0.002, // Lower frequency for smoother oceanic swells
+                    speed: 0.002 + Math.random() * 0.004,
                     offset: Math.random() * 100,
                 });
             }
@@ -1203,14 +1292,17 @@
                 }
                 
                 let grad = ctx.createLinearGradient(0, 0, width, 0);
-                let shimmer = Math.sin(time * 0.001 + idx) * 0.02;
-                grad.addColorStop(0, `rgba(0, 255, 135, ${0.1 + shimmer})`);
-                grad.addColorStop(0.33, `rgba(96, 239, 255, ${0.15 - shimmer})`);
-                grad.addColorStop(0.66, `rgba(0, 97, 255, ${0.1 + shimmer})`);
-                grad.addColorStop(1, `rgba(123, 44, 191, ${0.15 - shimmer})`);
+                let shimmer = Math.sin(time * 0.001 + idx) * 0.05;
+                
+                // Much brighter and more vivid Aurora strokes
+                grad.addColorStop(0, `rgba(0, 255, 135, ${0.15 + shimmer})`);
+                grad.addColorStop(0.33, `rgba(96, 239, 255, ${0.25 - shimmer})`);
+                grad.addColorStop(0.66, `rgba(0, 97, 255, ${0.15 + shimmer})`);
+                grad.addColorStop(1, `rgba(123, 44, 191, ${0.25 - shimmer})`);
+                
                 ctx.strokeStyle = grad; 
-                ctx.lineWidth = 1.5;
-                ctx.stroke(); 
+                ctx.lineWidth = 2.5; // Thicker lines for visibility
+                ctx.stroke();
                 
                 wave.offset += wave.speed;
             });
